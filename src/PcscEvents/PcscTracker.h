@@ -54,6 +54,11 @@ void* GetProcAddress(HMODULE hModule, const char* lpProcName);
 #define FALSE 0
 #endif
 
+#ifndef SCARD_E_NO_READERS_AVAILABLE
+#define SCARD_E_NO_READERS_AVAILABLE	((LONG) 0x8010002E)
+#endif
+
+
 /*
  * string manipulation
  */
@@ -122,7 +127,7 @@ protected:
 public:
 	Pcsc() : m_hDll(NULL)
 	{
-		Initialize();
+		// Initialize();
 	}
 
 	~Pcsc()
