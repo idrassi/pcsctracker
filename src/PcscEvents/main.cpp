@@ -52,8 +52,6 @@ DEFINE_EVENT_TYPE(wxEVT_READER_REMOVED_EVENT)
 DEFINE_EVENT_TYPE(wxEVT_CARD_STATE_EVENT)
 
 
-const wxString g_szRootFormat(_("%d Readers"));
-
 class CAutoLock
 {
 public:
@@ -208,6 +206,7 @@ protected:
 	PcscTracker& m_tracker;
 	wxTreeItemId m_readersRoot;
 	CRITICAL_SECTION m_lock;
+	wxString m_szRootFormat;
 
 	virtual void OnCloseEventsFrame( wxCloseEvent& event )
 	{ 
@@ -236,7 +235,7 @@ protected:
    }
 
 public:
-	MyEventsFrame(PcscTracker& tracker) : EventsFrame(NULL), m_tracker(tracker)
+	MyEventsFrame(PcscTracker& tracker) : EventsFrame(NULL), m_tracker(tracker), m_szRootFormat(_("%d Readers"))
 	{
 		InitializeCriticalSection(&m_lock);
 		//slots image list
@@ -244,7 +243,7 @@ public:
 		imgList->Add(wxBITMAP(slotsImgList));
 		m_tree->AssignImageList(imgList);
 
-		m_readersRoot = m_tree->AddRoot(wxString::Format(g_szRootFormat, 0), ID_SLOTS_ROOT);
+		m_readersRoot = m_tree->AddRoot(wxString::Format(m_szRootFormat, 0), ID_SLOTS_ROOT);
 
 		Connect(wxEVT_READER_ADDED_EVENT, wxCommandEventHandler( MyEventsFrame::OnReaderAdded ), NULL, this );
 		Connect(wxEVT_READER_REMOVED_EVENT, wxCommandEventHandler( MyEventsFrame::OnReaderRemoved ), NULL, this );
@@ -468,7 +467,7 @@ public:
 
 	void UpdateRootLabel()
 	{
-		m_tree->SetItemText(m_readersRoot, wxString::Format(g_szRootFormat, m_tree->GetChildrenCount(m_readersRoot, false)));
+		m_tree->SetItemText(m_readersRoot, wxString::Format(m_szRootFormat, m_tree->GetChildrenCount(m_readersRoot, false)));
 	}
 
 	virtual void OnReaderAdded( wxCommandEvent& event )
