@@ -13,6 +13,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include <io.h>
 #include <string.h>
 #include <string>
@@ -152,10 +153,28 @@ int _tmain(int argc, _TCHAR* argv[])
       {
          std::vector<CEntry> list;
          CEntry entry;
+         time_t rawtime;
+         struct tm * timeinfo;
+         char date [80];
+         char year[6];
+
+         time (&rawtime);
+         timeinfo = localtime (&rawtime);
+         strftime (date,80,"%Y-%m-%d",timeinfo);
+         strftime (year,6,"%Y",timeinfo);
+
          while (ParseEntry(f, entry))
          {
             list.push_back(entry);
          }
+         fprintf(g,"///////////////////////////////////////////////////////////////////////////////\n");
+         fprintf(g,"// Name:        smartcard_list.h\n");
+         fprintf(g,"// Purpose:     result of conversion of smatcard_list.txt\n");
+         fprintf(g,"// Author:      Mounir IDRASSI\n");
+         fprintf(g,"// Created:     %s\n", date);
+         fprintf(g,"// Copyright:   (c) %s Mounir IDRASSI <mounir.idrassi@idrix.fr>\n", year);
+         fprintf(g,"// Licence:     GPLv3/MIT\n");
+         fprintf(g,"///////////////////////////////////////////////////////////////////////////////\n\n");
 
          fprintf(g,"#pragma once\n\n");
          fprintf(g,"typedef struct{\n\tconst char* atr;\n\tconst char* cardName;\n}\nCardEntry;\n\n");
