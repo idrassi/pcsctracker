@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Feb 26 2014)
+// C++ code generated with wxFormBuilder (version Feb  8 2017)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO "NOT" EDIT THIS FILE!
@@ -47,7 +47,7 @@ class EventsFrame : public wxFrame
 	
 	public:
 		
-		EventsFrame( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("PC/SC Tracker        by Mounir IDRASSI (mounir@idrix.fr)"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 640,480 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
+		EventsFrame( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("PC/SC Tracker 1.1     by Mounir IDRASSI (mounir@idrix.fr)"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 640,480 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
 		
 		~EventsFrame();
 	
