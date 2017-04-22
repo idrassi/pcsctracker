@@ -319,7 +319,7 @@ public:
             }
             SCardReleaseContext(hContext);
          }
-#else
+#endif
          wxString szATR = ToHex(pState->GetAtr(), pState->GetAtrLength());
          wxRegEx cardNameRegEx;
          size_t i, cardsCount = sizeof(g_cardsList) / sizeof(CardEntry);
@@ -330,11 +330,16 @@ public:
                && cardNameRegEx.Matches(szATR)
                )
             {
-               szCardName = wxString(g_cardsList[i].cardName, wxConvUTF8);
+#ifdef _WIN32
+               szCardName += wxT(" ( ");
+#endif
+               szCardName += wxString(g_cardsList[i].cardName, wxConvUTF8);
+#ifdef _WIN32
+               szCardName += wxT(" )");
+#endif
                break;
             }
          }
-#endif
       }
    }
 
@@ -342,21 +347,45 @@ public:
 	{				
 		if (pState->GetEventState() & SCARD_STATE_PRESENT)
 		{
+			wxTreeItemIdValue cookie;
+			wxTreeItemId propItem;
+			bool bAtrChanged = false;
+
+			wxString szCardName, szCardProvider, szCardModule;
+			wxString szAtrValue = ToHex(pState->GetAtr(), pState->GetAtrLength());
+			wxString szAtrLabel = wxT("ATR : ") + szAtrValue;
+			wxString szStateValue = PcscStateToString(pState->GetEventState());
+			wxString szStateLabel = wxT("State : ") + szStateValue;
+			wxString szCounterValue = wxString::Format(wxT("%d"), (int) (pState->GetEventState() >> 16));
+			wxString szCounterLabel = wxT("Events Counter : ") + szCounterValue;
+
+			if (pState->GetCurrentState() & SCARD_STATE_PRESENT)
+			{
+				propItem = m_tree->GetFirstChild(item, cookie);
+				if (propItem.IsOk())
+				{
+					// ATR               
+               bAtrChanged = (m_tree->GetItemText(propItem) != szAtrLabel);
+				}
+			}
+			else
+				bAtrChanged = true;
+
+			if (bAtrChanged)
+				GetCardInformation(pState, szCardName, szCardProvider, szCardModule);
+
 			if ( !(pState->GetCurrentState() & SCARD_STATE_PRESENT))
 			{
-				wxString szAtrValue = ToHex(pState->GetAtr(), pState->GetAtrLength());
-				wxString szAtrLabel = wxT("ATR : ") + szAtrValue;
 				wxTreeItemId propItem = m_tree->AppendItem(item, szAtrLabel, ID_SLOTS_TOKEN_PROPERTY);
 				m_tree->SetItemData(propItem, new wxReaderItemData(szAtrValue));
 
-				wxString szStateValue = PcscStateToString(pState->GetEventState());
-				wxString szStateLabel = wxT("State : ") + szStateValue;
 				propItem = m_tree->AppendItem(item, szStateLabel, ID_SLOTS_TOKEN_PROPERTY);
 				m_tree->SetItemData(propItem, new wxReaderItemData(szStateValue));
 
+				propItem = m_tree->AppendItem(item, szCounterLabel, ID_SLOTS_TOKEN_PROPERTY);
+				m_tree->SetItemData(propItem, new wxReaderItemData(szCounterValue));
+
             // Add card name and associated provider
-            wxString szCardName, szCardProvider, szCardModule;
-            GetCardInformation(pState, szCardName, szCardProvider, szCardModule);
 
             wxString szCardNameLabel = wxT("Card Name : ") + szCardName;
             propItem = m_tree->AppendItem(item, szCardNameLabel, szCardName.Length()? ID_SLOTS_TOKEN : ID_SLOTS_TOKEN_UNKNOWN);
@@ -385,21 +414,21 @@ public:
 				if (propItem.IsOk())
 				{
 					// ATR
-               bool bAtrChanged = false;
-					wxString szAtrValue = ToHex(pState->GetAtr(), pState->GetAtrLength());
-					wxString szAtrLabel = wxT("ATR : ") + szAtrValue;
-               bAtrChanged = (m_tree->GetItemText(propItem) != szAtrLabel);
 					m_tree->SetItemText(propItem, szAtrLabel);
 					delete m_tree->GetItemData(propItem);
 					m_tree->SetItemData(propItem, new wxReaderItemData(szAtrValue));
 
 					propItem = m_tree->GetNextChild(propItem, cookie);
 					// State
-					wxString szStateValue = PcscStateToString(pState->GetEventState());
-					wxString szStateLabel = wxT("State : ") + szStateValue;
 					m_tree->SetItemText(propItem, szStateLabel);
 					delete m_tree->GetItemData(propItem);
 					m_tree->SetItemData(propItem, new wxReaderItemData(szStateValue));
+
+					propItem = m_tree->GetNextChild(propItem, cookie);
+					// Events Counter
+					m_tree->SetItemText(propItem, szCounterLabel);
+					delete m_tree->GetItemData(propItem);
+					m_tree->SetItemData(propItem, new wxReaderItemData(szCounterValue));
 
                if (bAtrChanged)
                {
